@@ -23,6 +23,7 @@ export default async function handler(req, res) {
         ]
       }
     ];
+    
   
     const currentUserId = 1;
     const currentUser = users.find(user => user.id === currentUserId);
