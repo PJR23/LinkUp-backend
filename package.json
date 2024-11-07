@@ -1,7 +1,13 @@
 {
     "private": true,
     "devDependencies": {
-      "@types/node": "^17.0.42",
-      "@vercel/node": "^2.9.6"
+        "@types/node": "^17.0.42",
+        "@vercel/node": "^2.9.6"
+    },
+    "dependencies": {
+        "@vercel/postgres": "^0.10.0",
+        "bcrypt": "^5.1.1",
+        "jsonwebtoken": "^9.0.2",
+        "pg": "^8.13.1"
     }
-  }
+}
