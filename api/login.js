@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import { sql } from "@vercel/postgres";
 
 const JWT_SECRET = process.env.JWT_SECRET;
