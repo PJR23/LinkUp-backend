@@ -1,24 +1,29 @@
-import { Pool } from 'pg';
-
-const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
-});
+import { sql } from '@vercel/postgres';
 
 export default async function handler(req, res) {
-  const { userId } = req.query;
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
 
-  if (!userId) {
-    return res.status(400).json({ message: 'User ID is required' });
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
-  try {
-    const result = await pool.query(
-      'SELECT * FROM chats WHERE user_ids @> ARRAY[$1]::INTEGER[]', 
-      [userId] 
-    );
+  if (req.method === 'GET') {
+    const { userId } = req.query;
 
-    res.status(200).json(result.rows);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching chats', error });
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required' });
+    }
+
+    try {
+      const { rows } = await sql`SELECT * FROM chats WHERE user_ids @> ARRAY[${userId}]::INTEGER[]`;
+
+      res.status(200).json(rows);
+    } catch (error) {
+      return res.status(500).json({ message: 'Error fetching chats', error });
+    }
+  } else {
+    return res.status(405).json({ message: 'Method not allowed' });
   }
 }
