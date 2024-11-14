@@ -17,7 +17,12 @@ export default async function handler(req, res) {
     }
 
     try {
-      const { rows } = await sql`SELECT * FROM chats WHERE user_ids @> ARRAY[${userId}]::INTEGER[]`;
+      const { rows } = await sql`
+        SELECT * 
+        FROM chats c
+        JOIN chat_members cm ON c.id = cm.chat_id
+        WHERE cm.user_id = ${userId};
+      `;
 
       res.status(200).json(rows);
     } catch (error) {
