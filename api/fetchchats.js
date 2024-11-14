@@ -13,12 +13,12 @@ export default async function handler(req, res) {
 
   try {
     const result = await pool.query(
-      'SELECT * FROM chats WHERE user_ids @> ARRAY[$1]::INTEGER[]', 
-      [userId] 
+      'SELECT * FROM chats WHERE user_ids @> ARRAY[$1]::INTEGER[]',
+      [userId]
     );
 
     res.status(200).json(result.rows);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching chats', error });
+    res.status(500).json({ message: 'Error fetching user chats', error });
   }
 }
