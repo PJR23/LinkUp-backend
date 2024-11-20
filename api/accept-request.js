@@ -10,18 +10,20 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { requestId, senderId, receiverId } = req.body; 
+    const { requestId, senderId, receiverId } = req.body;
     if (!requestId || !senderId || !receiverId) {
       return res.status(400).json({ message: 'Request ID, Sender ID, and Receiver ID are required' });
     }
 
     try {
+      // Anfrage als akzeptiert markieren
       await sql`
         UPDATE friend_requests
         SET status = 'accepted'
         WHERE id = ${requestId}
       `;
 
+      // Freundschaft in die friends Tabelle eintragen
       await sql`
         INSERT INTO friends (user_id_1, user_id_2)
         VALUES (${senderId}, ${receiverId}), (${receiverId}, ${senderId})
