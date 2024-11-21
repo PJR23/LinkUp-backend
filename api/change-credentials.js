@@ -27,7 +27,7 @@ export default async function handler(req, res) {
         return res.status(404).json({ message: 'User not found' });
       }
 
-      const isPasswordValid = await bcrypt.compare(currentPassword, rows[0].password);
+      const isPasswordValid = await bcrypt.compare(currentPassword, rows[0].password_hash);
 
       if (!isPasswordValid) {
         return res.status(401).json({ message: 'Invalid current password' });
@@ -67,7 +67,7 @@ export default async function handler(req, res) {
         return res.status(404).json({ message: 'User not found' });
       }
 
-      const isPasswordValid = await bcrypt.compare(currentPassword, rows[0].password);
+      const isPasswordValid = await bcrypt.compare(currentPassword, rows[0].password_hash);
 
       if (!isPasswordValid) {
         return res.status(401).json({ message: 'Invalid current password' });
