@@ -39,7 +39,7 @@ export default async function handler(req, res) {
       // Passwort aktualisieren
       await sql`
         UPDATE users
-        SET password = ${hashedPassword}
+        SET password_hash = ${hashedPassword}
         WHERE id = ${userId};
       `;
 
