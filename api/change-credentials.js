@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     try {
       // Überprüfen des aktuellen Passworts
       const { rows } = await sql`
-        SELECT password FROM users WHERE id = ${userId};
+        SELECT password_hash FROM users WHERE id = ${userId};
       `;
 
       if (rows.length === 0) {
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     try {
       // Überprüfen des aktuellen Passworts
       const { rows } = await sql`
-        SELECT password FROM users WHERE id = ${userId};
+        SELECT password_hash FROM users WHERE id = ${userId};
       `;
 
       if (rows.length === 0) {
