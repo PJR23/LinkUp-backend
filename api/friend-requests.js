@@ -16,8 +16,8 @@ export default async function handler(req, res) {
       const { rows } = await sql`
         SELECT fr.id, u.username, fr.status 
         FROM friend_requests fr
-        JOIN users u ON fr.from_user_id = u.id
-        WHERE fr.to_user_id = ${user_id} AND fr.status = 'pending';
+        JOIN users u ON fr.to_user_id = u.id
+        WHERE fr.from_user_id = ${user_id} AND fr.status = 'pending';
       `;
       return res.status(200).json(rows);
     } catch (error) {
