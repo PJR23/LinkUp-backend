@@ -9,6 +9,7 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  // GET: Abrufen von Freunden oder Anfragen
   if (req.method === 'GET') {
     const { user_id, type } = req.query;
 
@@ -51,7 +52,28 @@ export default async function handler(req, res) {
     }
   }
 
-  if (req.method === 'POST') {
+  // POST: Freundschaftsanfrage senden
+  if (req.method === 'POST' && req.query.action === 'send') {
+    const { from_user_id, to_user_id } = req.body;
+
+    if (!from_user_id || !to_user_id) {
+      return res.status(400).json({ message: 'Both user IDs are required' });
+    }
+
+    try {
+      await sql`
+        INSERT INTO friend_requests (from_user_id, to_user_id) 
+        VALUES (${from_user_id}, ${to_user_id});
+      `;
+      return res.status(200).json({ message: 'Friend request sent' });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error sending request', error });
+    }
+  }
+
+  // POST: Freundschaftsanfrage akzeptieren
+  if (req.method === 'POST' && req.query.action === 'accept') {
     const { requestId } = req.body;
 
     if (!requestId) {
@@ -59,11 +81,10 @@ export default async function handler(req, res) {
     }
 
     try {
-      // Ermitteln der senderId und receiverId basierend auf der Anfrage-ID
       const { rows } = await sql`
-        SELECT from_user_id AS senderId, to_user_id AS receiverId
+        SELECT from_user_id AS senderid, to_user_id AS receiverid
         FROM friend_requests
-        WHERE id = ${requestId} AND status = 'pending'
+        WHERE id = ${requestId} AND status = 'pending';
       `;
 
       if (rows.length === 0) {
@@ -72,17 +93,19 @@ export default async function handler(req, res) {
 
       const { senderid, receiverid } = rows[0];
 
-      // Anfrage als akzeptiert markieren
+      if (!senderid || !receiverid) {
+        return res.status(400).json({ message: 'Invalid friend request data' });
+      }
+
       await sql`
         UPDATE friend_requests
         SET status = 'accepted'
-        WHERE id = ${requestId}
+        WHERE id = ${requestId};
       `;
 
-      // Freundschaft in die friends-Tabelle eintragen
       await sql`
         INSERT INTO friends (user_id, friend_id)
-        VALUES (${senderid}, ${receiverid}), (${receiverid}, ${senderid})
+        VALUES (${senderid}, ${receiverid}), (${receiverid}, ${senderid});
       `;
 
       return res.status(200).json({ message: 'Friend request accepted and friendship established' });
