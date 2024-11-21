@@ -71,6 +71,60 @@ export default async function handler(req, res) {
       return res.status(500).json({ message: 'Error sending request', error });
     }
   }
+// POST: Freundschaftsanfrage ablehnen (reject)
+  if (req.method === 'POST' && req.query.action === 'reject') {
+    const { requestId } = req.body;
+
+    if (!requestId) {
+      return res.status(400).json({ message: 'Request ID is required' });
+    }
+
+    try {
+      const { rows } = await sql`
+        SELECT id
+        FROM friend_requests
+        WHERE id = ${requestId} AND status = 'pending';
+      `;
+
+      if (rows.length === 0) {
+        return res.status(404).json({ message: 'Friend request not found or already processed' });
+      }
+
+      await sql`
+        UPDATE friend_requests
+        SET status = 'rejected'
+        WHERE id = ${requestId};
+      `;
+
+      return res.status(200).json({ message: 'Friend request rejected' });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error rejecting friend request', error });
+    }
+  }
+
+  // POST: Freund entfernen (remove)
+  if (req.method === 'POST' && req.query.action === 'remove') {
+    const { userId, friendId } = req.body;
+
+    if (!userId || !friendId) {
+      return res.status(400).json({ message: 'Both user ID and friend ID are required' });
+    }
+
+    try {
+      // Entfernen der Freundschaft
+      await sql`
+        DELETE FROM friends
+        WHERE (user_id = ${userId} AND friend_id = ${friendId}) 
+          OR (user_id = ${friendId} AND friend_id = ${userId});
+      `;
+
+      return res.status(200).json({ message: 'Friend removed successfully' });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error removing friend', error });
+    }
+  }
 
   // POST: Freundschaftsanfrage akzeptieren
   if (req.method === 'POST' && req.query.action === 'accept') {
