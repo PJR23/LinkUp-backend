@@ -70,7 +70,7 @@ export default async function handler(req, res) {
         return res.status(404).json({ message: 'Friend request not found or already processed' });
       }
 
-      const { senderId, receiverId } = rows[0];
+      const { senderid, receiverid } = rows[0];
 
       // Anfrage als akzeptiert markieren
       await sql`
@@ -82,7 +82,7 @@ export default async function handler(req, res) {
       // Freundschaft in die friends-Tabelle eintragen
       await sql`
         INSERT INTO friends (user_id, friend_id)
-        VALUES (${senderId}, ${receiverId}), (${receiverId}, ${senderId})
+        VALUES (${senderid}, ${receiverid}), (${receiverid}, ${senderid})
       `;
 
       return res.status(200).json({ message: 'Friend request accepted and friendship established' });
