@@ -45,7 +45,16 @@ export default async function handler(req, res) {
     }
 
     try {
-      // Admin-Überprüfung
+      // Ausnahme für die "leave"-Aktion: Keine Admin-Überprüfung
+      if (action === 'leave') {
+        await sql`
+          DELETE FROM chat_members
+          WHERE chat_id = ${chat_id} AND user_id = ${user_id};
+        `;
+        return res.status(200).json({ message: 'User has left the chat successfully' });
+      }
+
+      // Admin-Überprüfung für alle anderen Aktionen
       const { rows: adminCheck } = await sql`
         SELECT role
         FROM chat_members
